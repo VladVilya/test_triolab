@@ -1,0 +1,45 @@
+version: "3.1"
+
+services:
+
+  projectname_db:
+    container_name: projectname_db
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=t3kit
+      - MYSQL_USER=t3kit
+      - MYSQL_PASSWORD=t3kit1234
+    ports:
+      - "3307:3306"
+
+  projectname_web:
+    container_name: projectname_web
+    image: t3kit/ubuntu16-php7-apache:0.1.1
+    ports:
+      - "8888:80"
+    depends_on:
+      - projectname_db
+      - projectname_solr
+    volumes:
+      - ./../../docker_run:/docker_run:cached
+      - ./../../scripts:/scripts:cached
+      - ./../../:/var/www/html:cached
+    command: "sh /docker_run/run.sh"
+    environment:
+      - USERID=501
+      - GROUPID=20
+
+  projectname_solr:
+    container_name: projectname_solr
+    image: typo3solr/ext-solr:6.0.0
+    ports:
+      - "8983:8983"
+    volumes:
+      - ./../../solrdata:/opt/solr/server/solr/data/:cached
+
+  projectname_mailhog:
+    container_name: projectname_mailhog
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
