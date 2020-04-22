@@ -1,0 +1,45 @@
+version: "3.1"
+
+services:
+
+  triolab_db:
+    container_name: triolab_db
+    image: mysql:5.7
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=t3kit
+      - MYSQL_USER=t3kit
+      - MYSQL_PASSWORD=t3kit1234
+    ports:
+      - "3307:3306"
+
+  triolab_web:
+    container_name: triolab_web
+    image: t3kit/ubuntu14-php5-apache:0.0.3
+    ports:
+      - "80:80"
+    depends_on:
+      - triolab_db
+      - triolab_solr
+    volumes:
+      - ./../../docker_run:/docker_run
+      - ./../../scripts:/scripts
+      - ./../:/var/www/html/web
+    command: "sh /docker_run/run.sh"
+    environment:
+      - USERID=1001
+      - GROUPID=1001
+
+  triolab_solr:
+    container_name: triolab_solr
+    image: typo3solr/ext-solr:6.0.0
+    ports:
+      - "8983:8983"
+    volumes:
+      - ./../../solrdata:/opt/solr/server/solr/data/
+
+  triolab_mailhog:
+    container_name: triolab_mailhog
+    image: mailhog/mailhog
+    ports:
+      - "8025:8025"
